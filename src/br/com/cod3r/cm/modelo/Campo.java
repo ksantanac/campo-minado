@@ -1,5 +1,7 @@
 package br.com.cod3r.cm.modelo;
 
+import br.com.cod3r.cm.excecao.ExplosaoException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +21,7 @@ public class Campo {
         this.coluna = coluna;
     }
 
-    public boolean adicionarVizinho(Campo vizinho) {
+    boolean adicionarVizinho(Campo vizinho) {
         boolean linhaDiferente = linha != vizinho.linha;
         boolean colunaDiferente = coluna != vizinho.coluna;
         boolean diagonal = linhaDiferente && colunaDiferente;
@@ -37,7 +39,37 @@ public class Campo {
         } else {
             return false;
         }
-
-
     }
+
+    void alternarMarcacao() {
+        if (!aberto) {
+            marcado = !marcado;
+        }
+    }
+
+    boolean abrir() {
+
+        if (!aberto && !marcado) {
+            aberto = true;
+
+            if (minado) {
+                throw new ExplosaoException();
+            }
+
+            if (vizinhacaSegura()) {
+                vizinhos.forEach(v -> v.abrir());
+            }
+
+            return true;
+
+        } else {
+            return false;
+        }
+    }
+
+
+    boolean vizinhacaSegura() {
+        return vizinhos.stream().noneMatch(v -> v.minado);
+    }
+
 }
